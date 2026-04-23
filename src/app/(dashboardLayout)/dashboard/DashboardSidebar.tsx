@@ -95,7 +95,7 @@ const isAdmin = role?.role === "ADMIN";
   ];
 
   const sidebarLinks = allLinks.filter(
-    (link) => !isAdmin 
+    (link) => !isAdmin
   );
 
   const handleLogout = async () => {

@@ -1,20 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import CheckoutForm from "./CheckoutForm";
 import axios from "axios";
 import { authClient } from "@/src/lib/auth-client";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 // Make sure to call loadStripe outside of a component's render to avoid recreating the Stripe object on every render.
 const stripePromise = loadStripe('pk_test_51QfDLMIXauIQhi9zpYyko394OCzT9oOQKPvLFEn5siB1Eld53WIRA6H63Oowd9ldwe1lkzoOO6WrEjUq2bQM1Tgi004aRSvT6f');
 
-export default function CheckoutPage() {
+function CheckoutContent() {
   const [clientSecret, setClientSecret] = useState("");
   const { data: session, isPending } = authClient.useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const movieId = searchParams.get("movie");
 
   useEffect(() => {
     if (!isPending && !session) {
@@ -55,12 +57,20 @@ export default function CheckoutPage() {
         <h1 className="text-2xl font-bold mb-6 text-center text-white">Secure Checkout</h1>
         {clientSecret ? (
           <Elements options={options} stripe={stripePromise}>
-            <CheckoutForm />
+            <CheckoutForm movieId={movieId} userId={session.user.id} />
           </Elements>
         ) : (
           <div className="text-center py-10 text-gray-400 font-medium">Loading Stripe Secure Portal...</div>
         )}
       </div>
     </div>
+  );
+}
+
+export default function CheckoutPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#000000] flex justify-center items-center text-white">Loading...</div>}>
+      <CheckoutContent />
+    </Suspense>
   );
 }

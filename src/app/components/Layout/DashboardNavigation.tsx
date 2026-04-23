@@ -36,11 +36,11 @@ const UserNavigation = () => (
 );
 
 
-// ✅ ADMIN
 const AdminNavigation = () => (
   <>
     <Navigator route="/" Icon={HomeIcon} label="Home" />
     <Navigator route="/dashboard/admin/movies" Icon={StockIcon} label="Manage Movies" />
+    <Navigator route="/dashboard/admin/tickets" Icon={OrderIcon} label="Tickets" />
     <Navigator route="/dashboard/admin/reviews" Icon={ReviewIcon} label="Manage Reviews" />
     <Navigator route="/dashboard/admin/users" Icon={AllOrdersIcon} label="All Users" />
     <Navigator route="/dashboard/admin/profile" Icon={ProfileIcon} label="Profile" />

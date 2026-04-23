@@ -26,7 +26,7 @@ const createPurchase = async () => {
   return res;
 };
 
-export const reviewaRoute = {
+export const purchaseRoute = {
   getPurchase,
   getSinglePurchase,
   createPurchase,

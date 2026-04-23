@@ -6,8 +6,9 @@ import {
   useStripe,
   useElements
 } from "@stripe/react-stripe-js";
+import axios from "axios";
 
-export default function CheckoutForm() {
+export default function CheckoutForm({ movieId, userId }: { movieId: string | null, userId: string }) {
   const stripe = useStripe();
   const elements = useElements();
 
@@ -24,21 +25,35 @@ export default function CheckoutForm() {
 
     setIsLoading(true);
 
-    const { error } = await stripe.confirmPayment({
+    const { error, paymentIntent } = await stripe.confirmPayment({
       elements,
       confirmParams: {
-        // Make sure to change this to your payment completion page
         return_url: `${window.location.origin}/success`,
       },
+      redirect: "if_required",
     });
 
-    // This point will only be reached if there is an immediate error when
-    // confirming the payment. Otherwise, your customer will be redirected to
-    // your `return_url`.
-    if (error.type === "card_error" || error.type === "validation_error") {
-      setMessage(error.message || "An unexpected error occurred.");
-    } else {
-      setMessage("An unexpected error occurred.");
+    if (error) {
+      if (error.type === "card_error" || error.type === "validation_error") {
+        setMessage(error.message || "An unexpected error occurred.");
+      } else {
+        setMessage("An unexpected error occurred.");
+      }
+    } else if (paymentIntent && paymentIntent.status === "succeeded") {
+      try {
+        if (movieId && userId) {
+          await axios.post("http://localhost:5000/api/purchases", {
+            movieId: movieId,
+            userId: userId,
+            purchaseType: "BUY",
+            price: 19.99
+          });
+        }
+        window.location.href = `/success?payment_intent=${paymentIntent.id}`;
+      } catch (err) {
+        console.error("Error creating purchase:", err);
+        setMessage("Payment succeeded, but we couldn't save your purchase. Please contact support.");
+      }
     }
     setIsLoading(false);
   };
